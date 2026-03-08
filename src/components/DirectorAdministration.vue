@@ -387,6 +387,25 @@ function openDeleteBranchModal(branch) {
 }
 
 async function addUser() {
+  if (!userForm.fullName || !userForm.email || !userForm.password || !userForm.role) {
+    showToast('Please fill all required fields.', 'error')
+    return
+  }
+
+  if (userForm.role !== 'Director' && !userForm.branch) {
+    showToast('A branch is required for Managers and Sales Agents.', 'error')
+    return
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(userForm.email)) {
+    showToast('Please enter a valid email address.', 'error')
+    return
+  }
+  if (userForm.password.length < 3) {
+    showToast('Password must be at least 3 characters long.', 'error')
+    return
+  }
   const payload = {
     fullName: userForm.fullName,
     email: userForm.email,
@@ -398,6 +417,7 @@ async function addUser() {
   const res = await apiFetch('/api/users/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+
     body: JSON.stringify(payload)
   })
 
@@ -418,11 +438,23 @@ async function updateUser() {
   }
 
   const payload = {}
-  if (updateUserForm.email) payload.email = updateUserForm.email
+  if (updateUserForm.email) payload.email = updateUserForm.email;
   if (updateUserForm.password) payload.password = updateUserForm.password
 
   if (!payload.email && !payload.password) {
     showToast('Provide email or password to update', 'error')
+    return
+  }
+
+  if (payload.email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(payload.email)) {
+      showToast('Please enter a valid email address.', 'error')
+      return
+    }
+  }
+  if (payload.password && payload.password.length < 6) {
+    showToast('New password must be at least 6 characters long.', 'error')
     return
   }
 
@@ -431,7 +463,6 @@ async function updateUser() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
-
   if (!res.ok) {
     showToast(res.data?.message || 'Update failed', 'error')
     return
@@ -447,6 +478,16 @@ async function updateBranch() {
     showToast('No branch selected', 'error')
     return
   }
+
+  if (!updateBranchForm.name.trim() || !updateBranchForm.location.trim()) {
+    showToast('Branch Name and Location are required.', 'error')
+    return
+  }
+  if (updateBranchForm.name.trim().length < 3) {
+    showToast('Branch Name must be at least 3 characters.', 'error')
+    return
+  }
+
   const payload = {
     name: updateBranchForm.name,
     location: updateBranchForm.location
@@ -469,6 +510,15 @@ async function updateBranch() {
 }
 
 async function addBranch() {
+  if (!branchForm.name.trim() || !branchForm.location.trim()) {
+    showToast('Branch Name and Location are required.', 'error')
+    return
+  }
+  if (branchForm.name.trim().length < 3) {
+    showToast('Branch Name must be at least 3 characters.', 'error')
+    return
+  }
+
   const payload = {
     name: branchForm.name,
     location: branchForm.location
@@ -491,6 +541,7 @@ async function addBranch() {
 }
 
 async function confirmDeleteUser() {
+
   const res = await apiFetch(`/api/users/${selectedUserId.value}`, {
     method: 'DELETE'
   })
@@ -504,6 +555,7 @@ async function confirmDeleteUser() {
 }
 
 async function confirmDeleteBranch() {
+
   const res = await apiFetch(`/api/branches/${branchToDeleteId.value}`, { method: 'DELETE' })
   if (res.ok) {
     showToast('Branch deleted successfully')
