@@ -1,6 +1,6 @@
 <template>
   <div class="sa-layout">
-    <aside :class="['sa-sidebar', { collapsed: sidebarCollapsed }]">
+    <aside :class="['sa-sidebar', { collapsed: sidebarCollapsed, 'mobile-active': !sidebarCollapsed && isMobile }]">
       <div class="sa-logo">
         <img src="/images/logo.png" alt="KGL Logo" />
         <button class="sa-toggle-btn" type="button" @click="toggleSidebar"><i class="fa-solid fa-bars"></i></button>
@@ -8,14 +8,29 @@
 
       <nav>
         <a href="#" :class="{ active: activeTab === 'dashboard' }" @click.prevent="showDashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
-        <a href="#" :class="{ active: activeTab === 'record' }" @click.prevent="activeTab = 'record'"><i class="fa-solid fa-cart-shopping"></i><span>Record Sale</span></a>
-        <a href="#" :class="{ active: activeTab === 'stock' }" @click.prevent="activeTab = 'stock'"><i class="fa-solid fa-warehouse"></i><span>View Stock</span></a>
-        <a href="#" :class="{ active: activeTab === 'my-sales' }" @click.prevent="activeTab = 'my-sales'"><i class="fa-solid fa-receipt"></i><span>My Sales</span></a>
+        <a href="#" :class="{ active: activeTab === 'record' }" @click.prevent="switchTab('record')"><i class="fa-solid fa-cart-shopping"></i><span>Record Sale</span></a>
+        <a href="#" :class="{ active: activeTab === 'stock' }" @click.prevent="switchTab('stock')"><i class="fa-solid fa-warehouse"></i><span>View Stock</span></a>
+        <a href="#" :class="{ active: activeTab === 'my-sales' }" @click.prevent="switchTab('my-sales')"><i class="fa-solid fa-receipt"></i><span>My Sales</span></a>
         <a href="#" @click.prevent="logout"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
       </nav>
     </aside>
 
+    <!-- Mobile Overlay -->
+    <div 
+      v-if="isMobile && !sidebarCollapsed" 
+      class="sidebar-overlay" 
+      @click="sidebarCollapsed = true"
+    ></div>
+
     <main class="sa-main">
+      <!-- Mobile Header -->
+      <header class="mobile-header" v-if="isMobile">
+        <button class="mobile-toggle-btn" @click="toggleSidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="mobile-title">Sales Agent Dashboard</span>
+      </header>
+
       <template v-if="activeTab === 'dashboard'">
         <header class="sa-topbar">
           <h3>Welcome, {{ auth.userName || 'Sales Agent' }}</h3>
@@ -56,6 +71,7 @@ const router = useRouter()
 const auth = useAuthStore()
 
 const sidebarCollapsed = ref(false)
+const isMobile = ref(false)
 const activeTab = ref('dashboard')
 
 const todaySales = ref(0)
@@ -76,11 +92,17 @@ function toggleSidebar() {
 
 function showDashboard() {
   activeTab.value = 'dashboard'
+  if (isMobile.value) sidebarCollapsed.value = true
   nextTick(async () => {
     destroyCharts()
     initCharts()
     await fetchDashboardData()
   })
+}
+
+function switchTab(tab) {
+  activeTab.value = tab
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function logout() {
@@ -182,16 +204,30 @@ async function fetchDashboardData() {
   }
 }
 
+// Handle Window Resize
+function handleResize() {
+  isMobile.value = window.innerWidth <= 768
+  if (isMobile.value) {
+    sidebarCollapsed.value = true
+  } else {
+    sidebarCollapsed.value = false
+  }
+}
+
 onMounted(async () => {
   if (!auth.token) {
     router.push({ name: 'login' })
     return
   }
+  handleResize()
+  window.addEventListener('resize', handleResize)
+
   initCharts()
   await fetchDashboardData()
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
   destroyCharts()
 })
 </script>
@@ -214,5 +250,45 @@ onBeforeUnmount(() => {
 .sa-card h4 { color: #d4af37; }
 .sa-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 .sa-chart-box { background: #fff; padding: 20px; border-radius: 10px; }
-@media (max-width: 768px) { .sa-layout { flex-direction: column; } .sa-sidebar, .sa-sidebar.collapsed { width: 100%; } }
+
+/* Mobile Header */
+.mobile-header { display: none; align-items: center; background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.mobile-toggle-btn { background: none; border: none; font-size: 1.2rem; color: #2c3e50; cursor: pointer; margin-right: 15px; }
+.mobile-title { font-weight: bold; color: #2c3e50; }
+
+/* Mobile Overlay */
+.sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 999; }
+
+@media (max-width: 768px) { 
+  .sa-layout { flex-direction: column; } 
+  
+  .sa-sidebar { 
+    position: fixed; 
+    left: 0; 
+    top: 0; 
+    bottom: 0; 
+    width: 250px; 
+    transform: translateX(-100%); 
+    z-index: 1000; 
+  }
+
+  .sa-sidebar.mobile-active {
+    transform: translateX(0);
+  }
+
+  .sa-sidebar.collapsed { 
+    width: 250px;
+    transform: translateX(-100%);
+  }
+
+  .sa-main { margin-left: 0; width: 100%; }
+
+  .mobile-header { display: flex; }
+
+  .sa-topbar { display: none; }
+
+  .sa-sidebar .sa-toggle-btn {
+    display: none;
+  }
+}
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="director-layout">
-    <aside :class="['sidebar', { collapsed: sidebarCollapsed }]">
+    <aside :class="['sidebar', { collapsed: sidebarCollapsed, 'mobile-active': !sidebarCollapsed && isMobile }]">
       <div class="logo">
         <img src="/images/logo.png" alt="KGL Logo" />
         <button class="toggle-btn" type="button" @click="toggleSidebar"><i class="fa-solid fa-bars"></i></button>
@@ -26,7 +26,22 @@
       </nav>
     </aside>
 
+    <!-- Mobile Overlay (Click to close sidebar) -->
+    <div 
+      v-if="isMobile && !sidebarCollapsed" 
+      class="sidebar-overlay" 
+      @click="sidebarCollapsed = true"
+    ></div>
+
     <main class="main">
+      <!-- Mobile Header (Visible only on small screens) -->
+      <header class="mobile-header" v-if="isMobile">
+        <button class="mobile-toggle-btn" @click="toggleSidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="mobile-title">Director Dashboard</span>
+      </header>
+
       <template v-if="activeTab === 'dashboard'">
         <header class="topbar">
           <h3>Welcome, Director</h3>
@@ -94,6 +109,7 @@ const router = useRouter()
 const auth = useAuthStore()
 
 const sidebarCollapsed = ref(false)
+const isMobile = ref(false)
 const activeTab = ref('dashboard')
 const legacySrc = ref('/legacy/pages/directorDashboard.html')
 
@@ -117,6 +133,7 @@ function toggleSidebar() {
 
 function showDashboard() {
   activeTab.value = 'dashboard'
+  if (isMobile.value) sidebarCollapsed.value = true
   nextTick(async () => {
     destroyCharts()
     initCharts()
@@ -126,18 +143,22 @@ function showDashboard() {
 
 function showSalesOverview() {
   activeTab.value = 'sales'
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function showStockOverview() {
   activeTab.value = 'stock'
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function showCreditOverview() {
   activeTab.value = 'credit'
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function showAdministration() {
   activeTab.value = 'admin'
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function openLegacy(page, tab) {
@@ -243,17 +264,31 @@ async function fetchDashboardData() {
   }
 }
 
+// Handle Window Resize
+function handleResize() {
+  isMobile.value = window.innerWidth <= 768
+  if (isMobile.value) {
+    sidebarCollapsed.value = true
+  } else {
+    sidebarCollapsed.value = false
+  }
+}
+
 onMounted(async () => {
   if (!auth.token) {
     router.push({ name: 'login' })
     return
   }
 
+  handleResize()
+  window.addEventListener('resize', handleResize)
+
   initCharts()
   await fetchDashboardData()
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
   destroyCharts()
 })
 </script>

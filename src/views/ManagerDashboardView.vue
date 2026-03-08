@@ -1,6 +1,6 @@
 <template>
   <div class="manager-layout">
-    <aside :class="['manager-sidebar', { collapsed: sidebarCollapsed }]">
+    <aside :class="['manager-sidebar', { collapsed: sidebarCollapsed, 'mobile-active': !sidebarCollapsed && isMobile }]">
       <div class="manager-logo">
         <img src="/images/logo.png" alt="KGL Logo" />
         <button class="manager-toggle-btn" type="button" @click="toggleSidebar"><i class="fa-solid fa-bars"></i></button>
@@ -25,7 +25,22 @@
       </nav>
     </aside>
 
+    <!-- Mobile Overlay -->
+    <div 
+      v-if="isMobile && !sidebarCollapsed" 
+      class="sidebar-overlay" 
+      @click="sidebarCollapsed = true"
+    ></div>
+
     <main class="manager-main">
+      <!-- Mobile Header -->
+      <header class="mobile-header" v-if="isMobile">
+        <button class="mobile-toggle-btn" @click="toggleSidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="mobile-title">Manager Dashboard</span>
+      </header>
+
       <template v-if="activeTab === 'dashboard'">
         <header class="manager-topbar">
           <h3>Welcome, {{ auth.userName || 'Branch Manager' }}</h3>
@@ -92,6 +107,7 @@ const router = useRouter()
 const auth = useAuthStore()
 
 const sidebarCollapsed = ref(false)
+const isMobile = ref(false)
 const activeTab = ref('dashboard')
 const legacySrc = ref('/legacy/pages/managerDashboard.html')
 
@@ -113,6 +129,7 @@ function toggleSidebar() {
 
 function showDashboard() {
   activeTab.value = 'dashboard'
+  if (isMobile.value) sidebarCollapsed.value = true
   nextTick(async () => {
     destroyCharts()
     initCharts()
@@ -122,22 +139,27 @@ function showDashboard() {
 
 function showSettings() {
   activeTab.value = 'settings'
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function showRecordSales() {
   activeTab.value = 'record-sales'
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function showStockManagement() {
   activeTab.value = 'stock'
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function showSalesReport() {
   activeTab.value = 'sales-report'
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function showProcureProduce() {
   activeTab.value = 'procure'
+  if (isMobile.value) sidebarCollapsed.value = true
 }
 
 function openLegacy(page, tab) {
@@ -273,16 +295,30 @@ async function fetchDashboardData() {
   updateCharts(stockEntries, weeklySalesData)
 }
 
+// Handle Window Resize
+function handleResize() {
+  isMobile.value = window.innerWidth <= 768
+  if (isMobile.value) {
+    sidebarCollapsed.value = true
+  } else {
+    sidebarCollapsed.value = false
+  }
+}
+
 onMounted(async () => {
   if (!auth.token) {
     router.push({ name: 'login' })
     return
   }
+  handleResize()
+  window.addEventListener('resize', handleResize)
+
   initCharts()
   await fetchDashboardData()
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
   destroyCharts()
 })
 </script>
@@ -420,14 +456,81 @@ onBeforeUnmount(() => {
   padding: 20px;
 }
 
+/* Mobile Header */
+.mobile-header {
+  display: none;
+  align-items: center;
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.mobile-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #2c3e50;
+  cursor: pointer;
+  margin-right: 15px;
+}
+
+.mobile-title {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* Mobile Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
 @media (max-width: 768px) {
   .manager-layout {
     flex-direction: column;
   }
 
-  .manager-sidebar,
+  .manager-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 250px;
+    transform: translateX(-100%);
+    z-index: 1000;
+  }
+
+  .manager-sidebar.mobile-active {
+    transform: translateX(0);
+  }
+
   .manager-sidebar.collapsed {
+    width: 250px;
+    transform: translateX(-100%);
+  }
+
+  .manager-main {
+    margin-left: 0;
     width: 100%;
+  }
+
+  .mobile-header {
+    display: flex;
+  }
+
+  .manager-topbar {
+    display: none;
+  }
+
+  .manager-sidebar .manager-toggle-btn {
+    display: none;
   }
 }
 </style>
