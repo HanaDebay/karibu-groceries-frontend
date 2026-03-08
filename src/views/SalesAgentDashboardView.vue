@@ -237,6 +237,8 @@ onBeforeUnmount(() => {
 .sa-sidebar { width: 250px; background: #2c3e50; color: #fff; padding: 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; align-self: flex-start; transition: width .3s ease; }
 .sa-sidebar.collapsed { width: 80px; }
 .sa-sidebar.collapsed nav span { display: none; }
+.sa-sidebar.collapsed .sa-logo { justify-content: center; }
+.sa-sidebar.collapsed .sa-logo img { display: none; }
 .sa-logo { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
 .sa-logo img { width: 30px; height: 30px; border-radius: 50%; background: #fff; padding: 2px; }
 .sa-toggle-btn { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35); border-radius: 6px; padding: 6px 10px; cursor: pointer; }

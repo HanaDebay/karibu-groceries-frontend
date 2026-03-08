@@ -351,6 +351,14 @@ onBeforeUnmount(() => {
   display: none;
 }
 
+.manager-sidebar.collapsed .manager-logo {
+  justify-content: center;
+}
+
+.manager-sidebar.collapsed .manager-logo img {
+  display: none;
+}
+
 .manager-sidebar nav a {
   display: flex;
   align-items: center;
