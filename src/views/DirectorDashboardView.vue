@@ -292,3 +292,178 @@ onBeforeUnmount(() => {
   destroyCharts()
 })
 </script>
+
+<style scoped>
+.director-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f6f8;
+  position: relative;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 250px;
+  background-color: #2c3e50;
+  color: #fff;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar .logo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.sidebar .logo img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  padding: 2px;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.sidebar nav {
+  flex: 1;
+  padding: 10px 0;
+}
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  color: #b0b8c5;
+  text-decoration: none;
+  transition: 0.2s;
+  gap: 15px;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #d4af37;
+  border-left: 4px solid #d4af37;
+}
+
+.sidebar.collapsed nav a span {
+  display: none;
+}
+
+.sidebar.collapsed nav a {
+  justify-content: center;
+}
+
+/* Main Content */
+.main {
+  flex: 1;
+  padding: 20px;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.legacy-frame {
+  width: 100%;
+  height: 80vh;
+  border: none;
+}
+
+/* Mobile Header */
+.mobile-header {
+  display: none;
+  align-items: center;
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.mobile-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #2c3e50;
+  cursor: pointer;
+  margin-right: 15px;
+}
+
+.mobile-title {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* Mobile Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    transform: translateX(-100%); /* Hidden by default */
+  }
+
+  .sidebar.mobile-active {
+    transform: translateX(0);
+  }
+  
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+
+  .main {
+    width: 100%;
+  }
+
+  .mobile-header {
+    display: flex;
+  }
+
+  .topbar {
+    display: none;
+  }
+  
+  .sidebar .toggle-btn {
+    display: none;
+  }
+}
+</style>
