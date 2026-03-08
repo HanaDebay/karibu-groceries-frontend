@@ -374,6 +374,15 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 
+.sidebar.collapsed .logo {
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.sidebar.collapsed .logo img {
+  display: none;
+}
+
 /* Main Content */
 .main {
   flex: 1;

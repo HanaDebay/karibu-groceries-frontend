@@ -242,7 +242,12 @@ onBeforeUnmount(() => {
 .sa-toggle-btn { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
 .sa-sidebar nav a { display: flex; align-items: center; gap: 10px; color: #d4af37; text-decoration: none; padding: 12px; margin: 8px 0; border-radius: 6px; }
 .sa-sidebar.collapsed nav a { justify-content: center; }
-.sa-sidebar nav a.active, .sa-sidebar nav a:hover { background: rgba(255,255,255,.2); }
+.sa-sidebar nav a.active,
+.sa-sidebar nav a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #d4af37;
+  padding-left: 8px; /* Original padding is 12px, reduced to keep content aligned */
+}
 .sa-main { flex: 1; padding: 20px; }
 .sa-topbar { background: #fff; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; margin-bottom: 20px; }
 .sa-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }

@@ -368,7 +368,9 @@ onBeforeUnmount(() => {
 
 .manager-sidebar nav a.active,
 .manager-sidebar nav a:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #d4af37;
+  padding-left: 8px; /* Original padding is 12px, reduced to keep content aligned */
 }
 
 .manager-logo {
