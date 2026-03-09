@@ -42,7 +42,7 @@
               <td>{{ item.branch }}</td>
               <td>{{ Number(item.stock || 0).toLocaleString() }}</td>
               <td>{{ Number(item.sellingPrice || 0).toLocaleString() }}</td>
-              <td><span :class="['badge', getStatus(item.stock).class]">{{ getStatus(item.stock).text }}</span></td>
+              <td><span :class="['badge', getStatus(item.stock).class]" :title="getStatus(item.stock).title">{{ getStatus(item.stock).text }}</span></td>
               <td class="actions">
                 <button class="btn edit" type="button" @click="openEdit(item)">Edit</button>
                 <button class="btn delete" type="button" @click="openDelete(item)">Delete</button>
@@ -155,9 +155,9 @@ function resetFilters() {
 
 function getStatus(stock) {
   const qty = Number(stock || 0)
-  if (qty <= 0) return { text: 'Out of Stock', class: 'danger' }
-  if (qty < 1000) return { text: 'Low Stock', class: 'warning' }
-  return { text: 'Available', class: 'success' }
+  if (qty <= 0) return { text: 'Out of Stock', class: 'danger', title: 'Out of Stock (<= 0 KG)' }
+  if (qty < 500) return { text: 'Low Stock', class: 'warning', title: 'Low Stock (< 500 KG)' }
+  return { text: 'Available', class: 'success', title: 'Available (>= 500 KG)' }
 }
 
 async function fetchStock() {

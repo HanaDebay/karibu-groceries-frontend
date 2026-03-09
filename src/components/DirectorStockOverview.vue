@@ -43,7 +43,7 @@
             <td>UGX {{ Number(item.sellingPrice || 0).toLocaleString() }}</td>
             <td>UGX {{ Number(item.quantity * item.sellingPrice || 0).toLocaleString() }}</td>
             <td>
-              <span :class="['badge', badgeClass(item.quantity)]">{{ statusLabel(item.quantity) }}</span>
+              <span :class="['badge', badgeClass(item.quantity)]" :title="statusTooltip(item.quantity)">{{ statusLabel(item.quantity) }}</span>
             </td>
           </tr>
         </tbody>
@@ -75,6 +75,12 @@ function statusLabel(kg) {
   if (status === 'available') return 'Available'
   if (status === 'low') return 'Low Stock'
   return 'Out of Stock'
+}
+
+function statusTooltip(kg) {
+  if (kg === 0) return 'Out of Stock (0 KG)'
+  if (kg < 1000) return 'Low Stock (< 1,000 KG)'
+  return 'Available (>= 1,000 KG)'
 }
 
 function rowClass(kg) {

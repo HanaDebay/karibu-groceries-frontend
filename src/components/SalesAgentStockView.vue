@@ -32,7 +32,7 @@
               <td>{{ item.type }}</td>
               <td>{{ Number(item.quantity || 0).toLocaleString() }}</td>
               <td>{{ Number(item.price || 0).toLocaleString() }}</td>
-              <td :style="{ color: statusColor(item.quantity), fontWeight: 'bold' }">{{ statusLabel(item.quantity) }}</td>
+              <td :style="{ color: statusColor(item.quantity), fontWeight: 'bold' }" :title="statusTooltip(item.quantity)">{{ statusLabel(item.quantity) }}</td>
               <td><button class="action-btn sell" type="button" @click="$emit('sell')">Sell</button></td>
             </tr>
           </tbody>
@@ -59,6 +59,13 @@ function statusLabel(quantity) {
   if (q === 0) return 'Out of Stock'
   if (q < 50) return 'Low Stock'
   return 'Available'
+}
+
+function statusTooltip(quantity) {
+  const q = Number(quantity || 0)
+  if (q === 0) return 'Out of Stock (0 KG)'
+  if (q < 50) return 'Low Stock (< 50 KG)'
+  return 'Available (>= 50 KG)'
 }
 
 function statusColor(quantity) {
