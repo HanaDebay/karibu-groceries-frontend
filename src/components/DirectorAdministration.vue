@@ -43,9 +43,13 @@
               <td>{{ user.role }}</td>
               <td>{{ user.branch || '-' }}</td>
               <td><span class="badge active">Active</span></td>
-              <td>
-                <button type="button" class="btn secondary" @click="openUpdateUserModal(user)">Key</button>
-                <button type="button" class="btn delete" @click="openDeleteUserModal(user)">Delete</button>
+              <td class="actions">
+                <button type="button" class="btn secondary" @click="openUpdateUserModal(user)" title="Update Credentials">
+                  <i class="fa-solid fa-key"></i>
+                </button>
+                <button type="button" class="btn delete" @click="openDeleteUserModal(user)" title="Delete User">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -82,9 +86,13 @@
               <td>{{ branch.location }}</td>
               <td>{{ getManagerName(branch.name) }}</td>
               <td><span class="badge active">Active</span></td>
-              <td>
-                <button type="button" class="btn edit" @click="openUpdateBranchModal(branch)">Edit</button>
-                <button type="button" class="btn delete" @click="openDeleteBranchModal(branch)">Delete</button>
+              <td class="actions">
+                <button type="button" class="btn edit" @click="openUpdateBranchModal(branch)" title="Edit Branch">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button type="button" class="btn delete" @click="openDeleteBranchModal(branch)" title="Delete Branch">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -99,7 +107,7 @@
         <h3>Register New User</h3>
         <button type="button" class="modal-close" @click="showUserModal = false">x</button>
       </header>
-      <form @submit.prevent="addUser">
+      <form @submit.prevent="addUser" novalidate>
         <div class="form-group">
           <label>Full Name</label>
           <input v-model.trim="userForm.fullName" type="text" required placeholder="e.g. John Doe" />
@@ -140,7 +148,7 @@
         <h3>Add New Branch</h3>
         <button type="button" class="modal-close" @click="showBranchModal = false">x</button>
       </header>
-      <form @submit.prevent="addBranch">
+      <form @submit.prevent="addBranch" novalidate>
         <div class="form-group">
           <label>Branch Name</label>
           <input v-model.trim="branchForm.name" type="text" required placeholder="e.g. Matugga" />
@@ -163,7 +171,7 @@
         <h3>Update Branch Details</h3>
         <button type="button" class="modal-close" @click="showUpdateBranchModal = false">x</button>
       </header>
-      <form @submit.prevent="updateBranch">
+      <form @submit.prevent="updateBranch" novalidate>
         <div class="form-group">
           <label>Branch Name</label>
           <input v-model.trim="updateBranchForm.name" type="text" required placeholder="e.g. Matugga" />
@@ -186,10 +194,10 @@
         <h3>Update User Credentials</h3>
         <button type="button" class="modal-close" @click="showUpdateUserModal = false">x</button>
       </header>
-      <form @submit.prevent="updateUser">
+      <form @submit.prevent="updateUser" novalidate>
         <div class="form-group">
           <label>Email</label>
-          <input v-model.trim="updateUserForm.email" type="email" placeholder="e.g. john@kgl.com" />
+          <input v-model.trim="updateUserForm.email" type="email" required placeholder="e.g. john@kgl.com" />
         </div>
         <div class="form-group">
           <label>New Password</label>
@@ -357,8 +365,8 @@ function openBranchModal() {
 
 function openUpdateBranchModal(branch) {
   updateBranchForm.id = branch._id
-  updateBranchForm.name = branch.name
-  updateBranchForm.location = branch.location
+  updateBranchForm.name = branch.name || ''
+  updateBranchForm.location = branch.location || ''
   showUpdateBranchModal.value = true
 }
 
@@ -437,40 +445,44 @@ async function updateUser() {
     return
   }
 
-  const payload = {}
-  if (updateUserForm.email) payload.email = updateUserForm.email;
-  if (updateUserForm.password) payload.password = updateUserForm.password
-
-  if (!payload.email && !payload.password) {
-    showToast('Provide email or password to update', 'error')
+  if (!updateUserForm.email) {
+    showToast('Email is required.', 'error')
     return
   }
 
-  if (payload.email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(payload.email)) {
-      showToast('Please enter a valid email address.', 'error')
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(updateUserForm.email)) {
+    showToast('Please enter a valid email address.', 'error')
+    return
+  }
+
+  try {
+    const payload = { email: updateUserForm.email }
+
+    if (updateUserForm.password) {
+      if (updateUserForm.password.length < 3) {
+        showToast('New password must be at least 3 characters long.', 'error')
+        return
+      }
+      payload.password = updateUserForm.password
+    }
+
+    const res = await apiFetch(`/api/users/${selectedUserId.value}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    if (!res.ok) {
+      showToast(res.data?.message || 'Update failed', 'error')
       return
     }
-  }
-  if (payload.password && payload.password.length < 6) {
-    showToast('New password must be at least 6 characters long.', 'error')
-    return
-  }
 
-  const res = await apiFetch(`/api/users/${selectedUserId.value}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-  if (!res.ok) {
-    showToast(res.data?.message || 'Update failed', 'error')
-    return
+    showToast('User updated successfully')
+    showUpdateUserModal.value = false
+    await fetchData()
+  } catch (error) {
+    showToast('An error occurred while updating user', 'error')
   }
-
-  showToast('User updated successfully')
-  showUpdateUserModal.value = false
-  await fetchData()
 }
 
 async function updateBranch() {
@@ -479,34 +491,38 @@ async function updateBranch() {
     return
   }
 
-  if (!updateBranchForm.name.trim() || !updateBranchForm.location.trim()) {
+  if (!updateBranchForm.name?.trim() || !updateBranchForm.location?.trim()) {
     showToast('Branch Name and Location are required.', 'error')
     return
   }
-  if (updateBranchForm.name.trim().length < 3) {
+  if (updateBranchForm.name?.trim().length < 3) {
     showToast('Branch Name must be at least 3 characters.', 'error')
     return
   }
 
-  const payload = {
-    name: updateBranchForm.name,
-    location: updateBranchForm.location
+  try {
+    const payload = {
+      name: updateBranchForm.name,
+      location: updateBranchForm.location
+    }
+
+    const res = await apiFetch(`/api/branches/${updateBranchForm.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    if (!res.ok) {
+      showToast(res.data?.message || 'Failed to update branch', 'error')
+      return
+    }
+
+    showToast('Branch updated successfully')
+    showUpdateBranchModal.value = false
+    await fetchData()
+  } catch (error) {
+    showToast('An error occurred while updating branch', 'error')
   }
-
-  const res = await apiFetch(`/api/branches/${updateBranchForm.id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-
-  if (!res.ok) {
-    showToast(res.data?.message || 'Failed to update branch', 'error')
-    return
-  }
-
-  showToast('Branch updated successfully')
-  showUpdateBranchModal.value = false
-  await fetchData()
 }
 
 async function addBranch() {
@@ -627,6 +643,11 @@ onMounted(fetchData)
 .admin-table td {
   padding: 12px;
   text-align: left;
+}
+
+.admin-table .actions {
+  display: flex;
+  gap: 5px;
 }
 
 .admin-table tbody tr:nth-child(even) {

@@ -56,9 +56,13 @@
               </td>
               <td v-show="currentView === 'credit'">{{ sale.dueDate ? formatDate(sale.dueDate) : '-' }}</td>
               <td>{{ sale.salesAgent || sale.recordedBy || '-' }}</td>
-              <td>
-                <button class="print-btn" type="button" @click="printSaleReceipt(sale)">Print</button>
-                <button v-if="currentView === 'credit' && Number(getAmount(sale)) > 0" class="pay-btn" type="button" @click="openPaymentModal(sale)">Receive Payment</button>
+              <td class="actions">
+                <button class="btn-action print-btn" type="button" @click="printSaleReceipt(sale)" title="Print Receipt">
+                  <i class="fa-solid fa-print"></i>
+                </button>
+                <button v-if="currentView === 'credit' && Number(getAmount(sale)) > 0" class="btn-action pay-btn" type="button" @click="openPaymentModal(sale)" title="Receive Payment">
+                  <i class="fa-solid fa-hand-holding-dollar"></i>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -389,9 +393,21 @@ fetchSales()
 .report-table th, .report-table td { padding: 12px; text-align: left; }
 .report-table th { background: #2c3e50; color: #fff; font-weight: 600; }
 .report-table tr:nth-child(even) { background: #f2f2f2; }
-.print-btn { padding: 5px 10px; background: #2c3e50; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-.pay-btn { margin-left: 6px; padding: 5px 10px; background: #d4af37; color: #2c3e50; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
-.pay-btn:hover { background: #2c3e50; color: #fff; }
+.actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-action {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+}
+.print-btn { background-color: #3498db; }
+.pay-btn { background-color: #2ecc71; }
 .totals-row { font-weight: bold; background-color: #f8f9fa; }
 .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
 .badge.success { background: #d1fae5; color: #065f46; }

@@ -44,8 +44,12 @@
               <td>{{ Number(item.sellingPrice || 0).toLocaleString() }}</td>
               <td><span :class="['badge', getStatus(item.stock).class]" :title="getStatus(item.stock).title">{{ getStatus(item.stock).text }}</span></td>
               <td class="actions">
-                <button class="btn edit" type="button" @click="openEdit(item)">Edit</button>
-                <button class="btn delete" type="button" @click="openDelete(item)">Delete</button>
+                <button class="btn edit" type="button" @click="openEdit(item)" title="Edit Stock">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button class="btn delete" type="button" @click="openDelete(item)" title="Delete Stock">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -307,7 +311,11 @@ fetchStock()
 .stock-table thead { background: #2c3e50; color: #d4af37; }
 .stock-table th, .stock-table td { padding: 14px; text-align: left; }
 .stock-table tbody tr:nth-child(even) { background: #f9fafb; }
-.actions { display: flex; gap: 8px; }
+.actions {
+  display: flex;
+  gap: 8px;
+}
+.actions .btn { padding: 8px; }
 .btn { border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; color: #fff; }
 .btn.edit { background: #3498db; }
 .btn.delete { background: #e74c3c; }

@@ -50,9 +50,13 @@
                 <span :class="['badge', getStatusClass(sale)]">{{ getStatusLabel(sale) }}</span>
               </td>
               <td v-show="currentView === 'credit'">{{ sale.dueDate ? formatDate(sale.dueDate) : '-' }}</td>
-              <td>
-                <button class="print-btn" type="button" @click="printReceipt(sale)">Print</button>
-                <button v-if="currentView === 'credit' && Number(getAmount(sale)) > 0" class="pay-btn" type="button" @click="openPaymentModal(sale)">Receive Payment</button>
+              <td class="actions">
+                <button class="btn-action print-btn" type="button" @click="printReceipt(sale)" title="Print Receipt">
+                  <i class="fa-solid fa-print"></i>
+                </button>
+                <button v-if="currentView === 'credit' && Number(getAmount(sale)) > 0" class="btn-action pay-btn" type="button" @click="openPaymentModal(sale)" title="Receive Payment">
+                  <i class="fa-solid fa-hand-holding-dollar"></i>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -345,9 +349,21 @@ tfoot { background: #f4f6f8; font-weight: bold; }
 .badge.success { background: #d1fae5; color: #065f46; }
 .badge.warning { background: #fef3c7; color: #92400e; }
 .badge.danger { background: #fee2e2; color: #991b1b; }
-.print-btn { padding: 5px 10px; background: #2c3e50; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-.pay-btn { margin-left: 6px; padding: 5px 10px; background: #d4af37; color: #2c3e50; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
-.pay-btn:hover { background: #2c3e50; color: #fff; }
+.actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-action {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+}
+.print-btn { background-color: #3498db; }
+.pay-btn { background-color: #2ecc71; }
 .toast { min-width: 250px; color: #fff; text-align: center; border-radius: 4px; padding: 14px; position: fixed; z-index: 1100; right: 20px; top: 20px; }
 .toast.success { background: #2ecc71; }
 .toast.error { background: #e74c3c; }

@@ -8,7 +8,9 @@
     <section class="table-container">
       <div class="search-row">
         <input v-model.trim="searchText" type="search" placeholder="Search produce or type..." />
-        <button class="action-btn" type="button" @click="printStockReport(filteredStock)">Print Report</button>
+        <button class="action-btn" type="button" @click="printStockReport(filteredStock)" title="Print Report">
+          <i class="fa-solid fa-print"></i>
+        </button>
       </div>
 
       <div class="table-scroll">
@@ -33,7 +35,9 @@
               <td>{{ Number(item.quantity || 0).toLocaleString() }}</td>
               <td>{{ Number(item.price || 0).toLocaleString() }}</td>
               <td :style="{ color: statusColor(item.quantity), fontWeight: 'bold' }" :title="statusTooltip(item.quantity)">{{ statusLabel(item.quantity) }}</td>
-              <td><button class="action-btn sell" type="button" @click="$emit('sell')">Sell</button></td>
+              <td><button class="action-btn sell" type="button" @click="$emit('sell')" title="Sell Item">
+                <i class="fa-solid fa-cart-plus"></i>
+              </button></td>
             </tr>
           </tbody>
         </table>
